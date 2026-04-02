@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cold Chain Packaging — Project Intake Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1117;--ink2:#3a3d47;--ink3:#7a7d87;
+  --rule:#d8dae0;--rule2:#eceef2;--bg:#f7f8fa;--white:#ffffff;
+  --ac:#1a56db;--ac-lt:#e8effe;
+  --warn:#c2410c;--warn-lt:#fff4ef;
+  --ok:#166534;--ok-lt:#dcfce7;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --r:6px;--rl:10px;
+}
+html{font-size:15px}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;padding:0 0 6rem}
+.topbar{background:var(--ink);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;border-bottom:2.5px solid var(--ac)}
+.tb-left{display:flex;flex-direction:column;gap:1px}
+.tb-brand{font-family:var(--mono);font-size:.72rem;font-weight:600;color:#fff;letter-spacing:.09em;text-transform:uppercase}
+.tb-sub{font-size:.6rem;color:rgba(255,255,255,.38);font-family:var(--mono);letter-spacing:.06em}
+.tb-btns{display:flex;gap:.5rem;align-items:center}
+.btn{font-family:var(--sans);font-size:.75rem;font-weight:500;padding:.38rem .85rem;border-radius:var(--r);cursor:pointer;transition:all .15s;border:none}
+.btn-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.75)}
+.btn-ghost:hover{background:rgba(255,255,255,.18);color:#fff}
+.btn-ac{background:var(--ac);color:#fff}
+.btn-ac:hover{background:#1647c0}
+.btn-outline{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.25)}
+.btn-outline:hover{border-color:rgba(255,255,255,.6);color:#fff}
+.btn-submit{background:#16a34a;color:#fff;font-size:.8rem;padding:.42rem 1.1rem}
+.btn-submit:hover{background:#15803d}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.page{max-width:880px;margin:0 auto;padding:2.5rem 1.5rem}
+.fhdr{display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:start;margin-bottom:2.5rem;padding-bottom:1.75rem;border-bottom:2px solid var(--ink)}
+.ftitle{font-size:1.55rem;font-weight:600;letter-spacing:-.02em;line-height:1.15;margin-bottom:.3rem}
+.ftitle span{color:var(--ac)}
+.fsub{font-size:.75rem;color:var(--ink3);font-family:var(--mono);letter-spacing:.04em}
+.fid{text-align:right;font-family:var(--mono);font-size:.7rem;color:var(--ink3);line-height:2}
+.fid strong{color:var(--ink);font-weight:600}
+.fid input[type=text]{width:130px;font-family:var(--mono);font-size:.75rem;padding:.22rem .45rem;border:1px solid var(--rule);border-radius:4px;outline:none;text-align:right;color:var(--ink)}
+.fid input:focus{border-color:var(--ac)}
+.sec{margin-bottom:2rem}
+.sec-hdr{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem}
+.sec-num{width:24px;height:24px;background:var(--ink);color:#fff;border-radius:50%;font-family:var(--mono);font-size:.68rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.sec-rule{flex:1;height:1px;background:var(--rule)}
+.sec-tag{font-size:.62rem;font-family:var(--mono);padding:.15rem .5rem;border-radius:3px;border:1px solid}
+.tag-req{background:var(--warn-lt);color:var(--warn);border-color:#fca89d}
+.tag-opt{background:var(--rule2);color:var(--ink3);border-color:var(--rule)}
+.card{background:var(--white);border:1px solid var(--rule);border-radius:var(--rl);padding:1.4rem 1.5rem}
+.card+.card{margin-top:.75rem}
+.card-title{font-size:.72rem;font-weight:600;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.9rem;padding-bottom:.55rem;border-bottom:1px solid var(--rule2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.75rem}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.f{margin-bottom:.8rem}
+.f:last-child{margin-bottom:0}
+.f label{display:block;font-size:.68rem;font-weight:600;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.28rem}
+.f label .req{color:var(--warn);margin-left:1px}
+.f input[type=text],.f input[type=email],.f input[type=tel],.f input[type=number],.f input[type=date],.f select,.f textarea{
+  width:100%;font-family:var(--sans);font-size:.84rem;color:var(--ink);background:var(--white);
+  border:1px solid var(--rule);border-radius:var(--r);padding:.48rem .68rem;outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7d87'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .65rem center;padding-right:1.8rem}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.f textarea{resize:vertical;min-height:70px;line-height:1.5}
+.f .hint{font-size:.65rem;color:var(--ink3);margin-top:.25rem;line-height:1.4;font-family:var(--mono)}
+.inp-unit{display:flex;gap:0}
+.inp-unit input{border-radius:var(--r) 0 0 var(--r);flex:1}
+.inp-unit .unit{font-family:var(--mono);font-size:.75rem;color:var(--ink3);background:var(--rule2);border:1px solid var(--rule);border-left:none;border-radius:0 var(--r) var(--r) 0;padding:0 .6rem;display:flex;align-items:center;white-space:nowrap}
+.checks{display:flex;flex-wrap:wrap;gap:.5rem .75rem;margin-top:.25rem}
+.chk{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--ink2);cursor:pointer}
+.chk input{width:14px;height:14px;accent-color:var(--ac);cursor:pointer;flex-shrink:0}
+.radios{display:flex;flex-wrap:wrap;gap:.5rem .75rem;margin-top:.25rem}
+.radio-btn{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--ink2);cursor:pointer}
+.radio-btn input{accent-color:var(--ac);cursor:pointer}
+.notice{border-radius:var(--r);padding:.75rem 1rem;font-size:.78rem;line-height:1.55;margin-bottom:.75rem}
+.notice-blue{background:var(--ac-lt);border:1px solid #93c5fd;color:#1e40af}
+.notice-warn{background:var(--warn-lt);border:1px solid #fca89d;color:var(--warn)}
+.notice-ok{background:var(--ok-lt);border:1px solid #86efac;color:var(--ok)}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;margin-top:1.5rem}
+.sig-line{border-bottom:1px solid var(--ink);margin-bottom:.35rem;height:36px}
+.sig-label{font-size:.67rem;color:var(--ink3);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.prio{padding:.22rem .6rem;border-radius:4px;font-size:.7rem;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s;font-family:var(--mono)}
+.priority-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.3rem}
+.prio-cost{background:#fef9c3;color:#854d0e;border-color:#fde047}
+.prio-temp{background:#dbeafe;color:#1e3a8a;border-color:#93c5fd}
+.prio-timeline{background:#f3e8ff;color:#581c87;border-color:#d8b4fe}
+.prio-compliance{background:var(--ok-lt);color:var(--ok);border-color:#86efac}
+.prio-weight{background:#fce7f3;color:#9d174d;border-color:#f9a8d4}
+.prio-reuse{background:#ffedd5;color:#7c2d12;border-color:#fdba74}
+.prio.active{box-shadow:0 0 0 2px currentColor}
+.divider{height:1px;background:var(--rule2);margin:1.25rem 0}
+/* Airtable config panel */
+.at-panel{background:#1e293b;border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:none}
+.at-panel.open{display:block}
+.at-panel label{color:rgba(255,255,255,.6);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.3rem}
+.at-panel input{width:100%;font-family:var(--mono);font-size:.78rem;background:#0f172a;border:1px solid #334155;border-radius:var(--r);padding:.42rem .65rem;color:#e2e8f0;outline:none}
+.at-panel input:focus{border-color:#60a5fa}
+.at-panel .hint{font-size:.65rem;color:#64748b;margin-top:.25rem;font-family:var(--mono);line-height:1.4}
+.at-status{font-family:var(--mono);font-size:.72rem;padding:.35rem .75rem;border-radius:4px;display:none}
+.at-ok{background:var(--ok-lt);color:var(--ok);border:1px solid #86efac}
+.at-err{background:var(--warn-lt);color:var(--warn);border:1px solid #fca89d}
+.at-loading{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+/* submit bar */
+.submit-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--rule);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between;z-index:50;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.submit-info{font-size:.76rem;color:var(--ink3)}
+.submit-info strong{color:var(--ink)}
+.submit-btns{display:flex;gap:.6rem;align-items:center}
+.btn-lg{padding:.55rem 1.4rem;font-size:.85rem;font-weight:600}
+@media print{
+  .topbar,.tb-btns,.submit-bar,.at-panel,.no-print{display:none!important}
+  body{background:#fff;padding:0}
+  .page{max-width:100%;padding:1cm}
+  .card{break-inside:avoid}
+  @page{margin:1.5cm;size:A4 portrait}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-brand">Cold Chain Packaging</div>
+    <div class="tb-sub">Project Intake Form</div>
+  </div>
+  <div class="tb-btns">
+    <button class="btn btn-ghost" onclick="window.print()">⎙ Print</button>
+    <button class="btn btn-ghost" onclick="saveJSON()">↓ JSON</button>
+    <!-- Admin panel trigger: hidden, accessed by typing PIN 2429 anywhere -->
+    <button class="btn btn-ghost" id="admin-btn" onclick="toggleAtPanel()"
+      style="display:none;opacity:.5;font-size:.65rem">⚙</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Airtable config panel -->
+  <div class="at-panel" id="at-panel">
+    <div style="color:rgba(255,255,255,.9);font-size:.82rem;font-weight:600;margin-bottom:.9rem">
+      🔗 Airtable Connection Settings
+      <span style="font-size:.65rem;color:#64748b;font-weight:400;margin-left:.5rem">Saved in browser only</span>
+    </div>
+    <div style="background:#0f172a;border-radius:5px;padding:.65rem .85rem;margin-bottom:.85rem;font-size:.68rem;color:#64748b;font-family:var(--mono);line-height:1.65">
+      <strong style="color:#94a3b8">Token:</strong> airtable.com → avatar → Developer Hub → Personal access tokens (needs data.records:read/write + schema.bases:read)<br>
+      <strong style="color:#94a3b8">Base ID:</strong> Open base → Help → API docs → copy the <span style="color:#60a5fa">appXXXXXXXXXXXXXX</span> from the URL
+    </div>
+    <div class="g3" style="margin-bottom:.75rem">
+      <div>
+        <label>Personal Access Token</label>
+        <input type="password" id="at-token" placeholder="patXXXXXXXXXXXXXX.XXX..." autocomplete="off">
+      </div>
+      <div>
+        <label>Base ID <span style="color:#475569;text-transform:none;font-weight:400;letter-spacing:0">(starts with "app")</span></label>
+        <input type="text" id="at-base" placeholder="appXXXXXXXXXXXXXX">
+        <div class="hint">Paste full URL — Base ID is extracted automatically</div>
+      </div>
+      <div>
+        <label>Table</label>
+        <select id="at-table-sel" style="width:100%;font-family:var(--mono);font-size:.78rem;background:#0f172a;border:1px solid #334155;border-radius:var(--r);padding:.42rem .65rem;color:#e2e8f0;outline:none;display:none;margin-bottom:.35rem">
+          <option value="">— fetch tables first —</option>
+        </select>
+        <input type="text" id="at-table" placeholder="Cold Chain Projects">
+        <div class="hint">Or type the exact table name</div>
+      </div>
+    </div>
+    <div id="at-diag" style="display:none;background:#0f172a;border-radius:5px;padding:.55rem .8rem;margin-bottom:.65rem;font-size:.67rem;font-family:var(--mono);color:#94a3b8;line-height:1.65;max-height:120px;overflow-y:auto"></div>
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-ghost" style="background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb" onclick="atFetchTables()">Fetch Tables →</button>
+      <button class="btn btn-ac" onclick="saveAtConfig()">Save &amp; Test</button>
+      <button class="btn" style="background:#334155;color:#94a3b8" onclick="clearAtConfig()">Clear</button>
+      <span class="at-status" id="at-status"></span>
+    </div>
+  </div>
+
+  <!-- Form header -->
+  <div class="fhdr">
+    <div>
+      <div class="ftitle">Cold Chain Solution<br><span>Project Intake Form</span></div>
+      <div class="fsub">Complete all required fields before engineering review &nbsp;·&nbsp; Submits directly to Airtable</div>
+    </div>
+    <div class="fid">
+      <div><strong>Project #</strong> <input type="text" id="proj-num" placeholder="CC-2603-XXX"></div>
+      <div><strong>Date</strong> <span id="fdate"></span></div>
+      <div><strong>Sales rep</strong> <input type="text" id="sales-rep" placeholder="Name"></div>
+      <div><strong>Status</strong>
+        <select style="width:130px;font-family:var(--mono);font-size:.7rem;padding:.18rem .35rem;border:1px solid var(--rule);border-radius:4px;outline:none" id="proj-status">
+          <option>New inquiry</option>
+          <option>Quoting</option>
+          <option>In development</option>
+          <option>Testing</option>
+          <option>Approved</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. CUSTOMER INFO -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">Customer Information</div><span class="sec-tag tag-req">Required</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g2">
+        <div class="f"><label>Company name <span class="req">*</span></label><input type="text" id="co-name" placeholder="Acme Pharma Inc."></div>
+        <div class="f"><label>Industry / vertical <span class="req">*</span></label>
+          <select id="co-industry">
+            <option value="">— Select —</option>
+            <optgroup label="Pharmaceutical">
+              <option>Specialty pharma / biologics</option><option>Compounding pharmacy (503A)</option>
+              <option>Outsourcing facility (503B)</option><option>Clinical trials / CRO</option>
+              <option>Distributor / 3PL (pharma)</option>
+            </optgroup>
+            <optgroup label="Life Sciences">
+              <option>Biobank / repository</option><option>Diagnostics / lab reagents</option>
+              <option>Cell &amp; gene therapy</option><option>Veterinary pharma</option>
+            </optgroup>
+            <optgroup label="Food &amp; Beverage">
+              <option>Meal kit / DTC food</option><option>Frozen food logistics</option>
+              <option>Seafood / proteins</option><option>Confectionery / chocolate</option>
+              <option>Specialty beverage / wine</option>
+            </optgroup>
+            <optgroup label="Other">
+              <option>Cosmetics / beauty</option><option>Cannabis / wellness</option>
+              <option>Nutraceuticals</option><option>Agriculture / produce</option>
+              <option>Other</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Contact name <span class="req">*</span></label><input type="text" id="contact-name" placeholder="Jane Smith"></div>
+        <div class="f"><label>Title / role</label><input type="text" id="contact-title" placeholder="Director of Logistics"></div>
+        <div class="f"><label>Department</label>
+          <select id="contact-dept">
+            <option value="">— Select —</option>
+            <option>Logistics / supply chain</option><option>Quality / regulatory</option>
+            <option>Procurement / sourcing</option><option>R&amp;D / engineering</option>
+            <option>Operations</option><option>Executive / management</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Email <span class="req">*</span></label><input type="email" id="contact-email" placeholder="jane@company.com"></div>
+        <div class="f"><label>Phone</label><input type="tel" id="contact-phone" placeholder="+1 (555) 000-0000"></div>
+        <div class="f"><label>Annual shipment volume</label>
+          <select id="co-volume">
+            <option value="">— Select —</option>
+            <option>&lt; 500 / yr</option><option>500 – 5,000 / yr</option>
+            <option>5,000 – 25,000 / yr</option><option>25,000 – 100,000 / yr</option>
+            <option>&gt; 100,000 / yr</option><option>Unknown</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. PRODUCT -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">2</div><div class="sec-title">Product Being Shipped</div><span class="sec-tag tag-req">Required</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g2">
+        <div class="f"><label>Product name / description <span class="req">*</span></label><input type="text" id="prod-name" placeholder="e.g. Insulin pen, mRNA vaccine, fresh salmon"></div>
+        <div class="f"><label>Product category <span class="req">*</span></label>
+          <select id="prod-cat">
+            <option value="">— Select —</option>
+            <option>Biologic / monoclonal antibody</option><option>Vaccine (refrigerated 2–8°C)</option>
+            <option>Vaccine (frozen / ultra-cold)</option><option>Cell / gene therapy product</option>
+            <option>Plasma / blood product</option><option>Specialty pharmaceutical (CRT)</option>
+            <option>Diagnostic / lab reagent</option><option>Biospecimen / tissue</option>
+            <option>Fresh food / proteins</option><option>Frozen food</option>
+            <option>Confectionery</option><option>Cosmetics / personal care</option>
+            <option>Cannabis / extract</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Shipment weight (product only)</label><div class="inp-unit"><input type="number" id="prod-weight" placeholder="0.0" step="0.1" min="0"><div class="unit">lbs</div></div></div>
+        <div class="f"><label>Units per shipment</label><input type="number" id="prod-units" placeholder="1" min="1"></div>
+        <div class="f"><label>Regulatory classification</label>
+          <select id="reg-class">
+            <option value="">— Select —</option>
+            <option>FDA — Biological (BLA)</option><option>FDA — Drug (NDA / ANDA)</option>
+            <option>FDA — Device (510k / PMA)</option><option>USDA regulated</option>
+            <option>Non-regulated (food / cosmetic)</option><option>Investigational / IND</option>
+            <option>Other / international</option>
+          </select>
+        </div>
+      </div>
+      <div class="f"><label>Product notes / special handling</label><textarea id="prod-desc" placeholder="Any special handling, packaging format, fragility, or regulatory context..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- 3. TEMPERATURE -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">3</div><div class="sec-title">Temperature Requirements</div><span class="sec-tag tag-req">Required</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g4">
+        <div class="f"><label>Minimum temp <span class="req">*</span></label><div class="inp-unit"><input type="number" id="temp-min" placeholder="2" step="0.5"><div class="unit">°C</div></div><div class="hint">Lower excursion limit</div></div>
+        <div class="f"><label>Maximum temp <span class="req">*</span></label><div class="inp-unit"><input type="number" id="temp-max" placeholder="8" step="0.5"><div class="unit">°C</div></div><div class="hint">Upper excursion limit</div></div>
+        <div class="f"><label>Target / setpoint</label><div class="inp-unit"><input type="number" id="temp-target" placeholder="5" step="0.5"><div class="unit">°C</div></div><div class="hint">Ideal storage point</div></div>
+        <div class="f"><label>Product start temp</label><div class="inp-unit"><input type="number" id="temp-start" placeholder="5" step="0.5"><div class="unit">°C</div></div><div class="hint">At packing time</div></div>
+      </div>
+      <div class="g3" style="margin-top:.25rem">
+        <div class="f"><label>Temperature classification <span class="req">*</span></label>
+          <select id="temp-class">
+            <option value="">— Select —</option>
+            <option>CRT — Controlled Room Temp (15–25°C)</option>
+            <option>Refrigerated (2–8°C)</option>
+            <option>Frozen (−10°C to −25°C)</option>
+            <option>Ultra-cold (≤ −25°C)</option>
+            <option>Warm protection (&gt; 20°C)</option>
+            <option>Custom (see above)</option>
+          </select>
+        </div>
+        <div class="f"><label>Max excursion allowed</label><div class="inp-unit"><input type="number" id="excursion-time" placeholder="0" min="0" step="0.5"><div class="unit">hours</div></div><div class="hint">0 = zero tolerance</div></div>
+        <div class="f"><label>Freeze sensitivity</label>
+          <select id="freeze-sens">
+            <option value="">— Select —</option>
+            <option>Freeze sensitive — cannot freeze</option>
+            <option>Not freeze sensitive</option>
+            <option>Must remain frozen</option>
+            <option>Unknown</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. LOGISTICS -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">4</div><div class="sec-title">Shipment Logistics</div><span class="sec-tag tag-req">Required</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g2">
+        <div class="f"><label>Origin / ship-from <span class="req">*</span></label><input type="text" id="origin" placeholder="City, State / ZIP — multiple OK"></div>
+        <div class="f"><label>Destination(s) <span class="req">*</span></label><input type="text" id="dest" placeholder="City, State — or 'nationwide'"></div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Carrier / service <span class="req">*</span></label>
+          <select id="carrier">
+            <option value="">— Select —</option>
+            <option>UPS Ground</option><option>UPS 2-Day Air</option><option>UPS Next Day Air</option>
+            <option>FedEx Ground</option><option>FedEx 2-Day</option><option>FedEx Overnight</option>
+            <option>USPS Priority</option><option>LTL freight</option>
+            <option>White glove / dedicated courier</option><option>Air freight (international)</option>
+            <option>Multiple / TBD</option>
+          </select>
+        </div>
+        <div class="f"><label>Max transit time <span class="req">*</span></label>
+          <select id="transit-dur">
+            <option value="">— Select —</option>
+            <option>Overnight (≤ 24 hr)</option><option>2-day (≤ 48 hr)</option>
+            <option>3-day (≤ 72 hr)</option><option>4–5 days (≤ 120 hr)</option>
+            <option>Up to 7 days</option><option>Variable / lane-dependent</option>
+          </select>
+        </div>
+        <div class="f"><label>Required protection window <span class="req">*</span></label><div class="inp-unit"><input type="number" id="prot-window" placeholder="48" min="1"><div class="unit">hours</div></div><div class="hint">Including delay buffer</div></div>
+      </div>
+      <div class="g2">
+        <div class="f"><label>Seasonal requirement</label>
+          <select id="season">
+            <option>Year-round (summer + winter)</option><option>Summer only</option>
+            <option>Winter only</option><option>Controlled environment only</option><option>Unknown</option>
+          </select>
+        </div>
+        <div class="f"><label>Worst-case summer ambient</label><div class="inp-unit"><input type="number" id="amb-summer" placeholder="38" step="1"><div class="unit">°C</div></div><div class="hint">ISTA 7E summer peak: 30.7°C</div></div>
+      </div>
+      <div class="f"><label>Known transit challenges</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" name="challenge" value="Weekend/holiday risk"> Weekend / holiday risk</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="Rural last-mile delays"> Rural last-mile delays</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="International customs"> International customs holds</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="Tarmac heat exposure"> Tarmac heat exposure</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="Hub dwell"> Hub / sort facility dwell</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="Returns / reverse logistics"> Reverse logistics</label>
+          <label class="chk"><input type="checkbox" name="challenge" value="Unrefrigerated recipient"> Recipient not refrigerated</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PCM -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">5</div><div class="sec-title">PCM Requirements</div><span class="sec-tag tag-req">Required</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g3">
+        <div class="f"><label>PCM setpoint <span class="req">*</span></label><div class="inp-unit"><input type="number" id="pcm-setpoint" placeholder="−12" step="0.5"><div class="unit">°C</div></div><div class="hint">Must be below product min temp</div></div>
+        <div class="f"><label>PCM type preference</label>
+          <select id="pcm-type">
+            <option value="">— No preference / recommend —</option>
+            <option>Inorganic salt hydrate (higher latent heat)</option>
+            <option>Organic eutectic (lighter, non-corrosive)</option>
+            <option>Must be inorganic (non-flammable)</option>
+            <option>Must be organic (food-contact)</option>
+            <option>Unknown — recommend best</option>
+          </select>
+        </div>
+        <div class="f"><label>Bottle size preference</label>
+          <select id="pcm-bottle">
+            <option value="">— No preference —</option>
+            <option>XS (70 mL) — mailer</option><option>SM (145 mL) — parcel</option>
+            <option>YB (276 mL) — YompBox standard</option>
+            <option>MD (380 mL) — standard shipper</option>
+            <option>LG (700 mL) — extended transit</option>
+            <option>XL (950 mL) — pallet</option>
+            <option>Mix of sizes</option><option>Custom / TBD</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Packs per shipment</label><input type="number" id="pcm-qty" placeholder="2" min="1"></div>
+        <div class="f"><label>Conditioning equipment available</label>
+          <select id="pcm-cond">
+            <option value="">— Select —</option>
+            <option>Standard refrigerator (2–8°C)</option><option>Standard freezer (−18°C)</option>
+            <option>Commercial freezer (−25 to −35°C)</option><option>Ultra-low freezer (−40 to −80°C)</option>
+            <option>Ambient only</option><option>Unknown</option>
+          </select>
+        </div>
+        <div class="f"><label>PCM budget target (per shipment)</label>
+          <select id="pcm-budget">
+            <option value="">— Select —</option>
+            <option>&lt; $5 / shipment</option><option>$5–$15 / shipment</option>
+            <option>$15–$30 / shipment</option><option>$30–$75 / shipment</option>
+            <option>&gt; $75 / shipment</option><option>No target — optimize for performance</option>
+          </select>
+        </div>
+      </div>
+      <div class="f"><label>Current coolant / PCM in use</label><input type="text" id="pcm-current" placeholder="e.g. Wet ice, dry ice, existing gel packs — brand / size / qty"></div>
+    </div>
+  </div>
+
+  <!-- 6. TESTING -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">6</div><div class="sec-title">Testing &amp; Validation</div><span class="sec-tag tag-opt">Optional</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="g3">
+        <div class="f"><label>Testing standard required</label>
+          <select id="test-std">
+            <option value="">— None specified —</option>
+            <option>ISTA 7E / Standard 20</option><option>ISTA 7D</option>
+            <option>ASTM D3103</option><option>USP &lt;1079&gt;</option>
+            <option>ICH Q1A</option><option>Internal protocol</option><option>Unknown — recommend</option>
+          </select>
+        </div>
+        <div class="f"><label>Validation stage needed</label>
+          <select id="test-stage">
+            <option value="">— Select —</option>
+            <option>DQ only</option><option>DQ + OQ</option><option>DQ + OQ + PQ (full)</option>
+            <option>Field validation</option><option>Simulation only</option><option>Unknown</option>
+          </select>
+        </div>
+        <div class="f"><label>Timeline for validation</label><div class="inp-unit"><input type="number" id="test-timeline" placeholder="90" min="1"><div class="unit">days</div></div></div>
+      </div>
+      <div class="f"><label>Required documentation</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" name="docs" value="DQ report"> DQ report</label>
+          <label class="chk"><input type="checkbox" name="docs" value="OQ report"> OQ report</label>
+          <label class="chk"><input type="checkbox" name="docs" value="PQ report"> PQ report</label>
+          <label class="chk"><input type="checkbox" name="docs" value="Pack-out SOP"> Pack-out SOP</label>
+          <label class="chk"><input type="checkbox" name="docs" value="SDS for PCM"> SDS for PCM</label>
+          <label class="chk"><input type="checkbox" name="docs" value="Certificate of Analysis"> CoA</label>
+          <label class="chk"><input type="checkbox" name="docs" value="ISTA certification mark"> ISTA cert mark</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. PRIORITIES -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">7</div><div class="sec-title">Priorities &amp; Timeline</div><span class="sec-tag tag-opt">Optional</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="f">
+        <label>Top priorities <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink3)">(click to toggle)</span></label>
+        <div class="priority-row">
+          <div class="prio prio-cost" onclick="this.classList.toggle('active')">💰 Lowest cost</div>
+          <div class="prio prio-temp" onclick="this.classList.toggle('active')">🌡 Temperature performance</div>
+          <div class="prio prio-timeline" onclick="this.classList.toggle('active')">⏱ Fastest timeline</div>
+          <div class="prio prio-compliance" onclick="this.classList.toggle('active')">✓ Regulatory compliance</div>
+          <div class="prio prio-weight" onclick="this.classList.toggle('active')">⚖ Minimize weight</div>
+          <div class="prio prio-reuse" onclick="this.classList.toggle('active')">♻ Sustainability</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="g3">
+        <div class="f"><label>Target launch date</label><input type="date" id="launch-date"></div>
+        <div class="f"><label>Decision timeline</label>
+          <select id="decision-timeline">
+            <option value="">— Select —</option>
+            <option>Immediate — ASAP</option><option>Within 30 days</option>
+            <option>30–60 days</option><option>60–90 days</option>
+            <option>90+ days / no rush</option><option>Unknown</option>
+          </select>
+        </div>
+        <div class="f"><label>Reason for evaluation</label>
+          <select id="change-reason">
+            <option value="">— Select —</option>
+            <option>New product launch</option><option>Temperature excursion event</option>
+            <option>Cost reduction initiative</option><option>Regulatory audit finding</option>
+            <option>Existing supplier failing specs</option><option>Sustainability initiative</option>
+            <option>Expanding to new markets</option><option>Annual RFQ</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="f"><label>Additional notes / constraints</label><textarea id="constraints" placeholder="Budget ceiling, competing vendors, FDA submission timing, or other context..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- 8. ENGINEERING NOTES (internal) -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">8</div><div class="sec-title">Engineering Notes</div><span class="sec-tag tag-opt">Internal use</span><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="notice notice-blue" style="font-size:.76rem">Complete after customer intake call. This section submits to Airtable but is hidden from printed customer copies.</div>
+      <div class="g2">
+        <div class="f"><label>Recommended PCM formulation</label><input type="text" id="eng-pcm" placeholder="e.g. −12°C inorganic CaCl₂, YB bottle (276 mL)"></div>
+        <div class="f"><label>Recommended insulation</label><input type="text" id="eng-insul" placeholder="e.g. 2″ EPS R-20, MD bottle layout"></div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>Calculated protection window</label><div class="inp-unit"><input type="number" id="eng-window" placeholder="0" step="0.5"><div class="unit">hours</div></div></div>
+        <div class="f"><label>Safety margin vs. required</label><div class="inp-unit"><input type="number" id="eng-margin" placeholder="0" step="0.5"><div class="unit">hours</div></div></div>
+        <div class="f"><label>ISTA 7E status</label>
+          <select id="eng-ista">
+            <option value="">— Select —</option>
+            <option>Passes summer profile</option><option>Passes summer + winter</option>
+            <option>Simulation only — not yet tested</option><option>Failed — redesign needed</option><option>Pending</option>
+          </select>
+        </div>
+      </div>
+      <div class="f"><label>Engineering notes</label><textarea id="eng-notes" placeholder="Thermal simulation results, PCM selection rationale, open questions..."></textarea></div>
+      <div class="f"><label>Next actions</label><textarea id="eng-actions" placeholder="Send sample packs, schedule OQ testing, request product thermal mass data..." style="min-height:55px"></textarea></div>
+    </div>
+  </div>
+
+  <!-- SIGNATURES -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-num">9</div><div class="sec-title">Authorization</div><div class="sec-rule"></div></div>
+    <div class="card">
+      <div class="notice notice-warn" style="font-size:.75rem">Customer signature confirms accuracy of all information and authorizes engineering to proceed.</div>
+      <div class="sig-grid">
+        <div><div class="sig-line"></div><div class="sig-label">Customer signature</div></div>
+        <div><div class="sig-line"></div><div class="sig-label">Sales representative</div></div>
+        <div><div class="sig-line"></div><div class="sig-label">Date</div></div>
+      </div>
+      <div class="sig-grid" style="margin-top:1.5rem">
+        <div><div class="sig-line"></div><div class="sig-label">Engineering review</div></div>
+        <div><div class="sig-line"></div><div class="sig-label">Quality approval</div></div>
+        <div><div class="sig-line"></div><div class="sig-label">Date approved</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- Submit bar -->
+<div class="submit-bar">
+  <div class="submit-info">
+    <strong id="sb-project">No project # set</strong> &nbsp;·&nbsp;
+    <span id="sb-status">Status: New inquiry</span> &nbsp;·&nbsp;
+    <span id="sb-at-status" style="color:var(--ink3)">Fill in required fields to submit</span>
+  </div>
+  <div class="submit-btns">
+    <button class="btn btn-outline no-print" style="border-color:var(--rule);color:var(--ink3)" onclick="clearForm()">↺ Clear</button>
+    <button class="btn btn-ghost no-print" style="background:var(--rule2);color:var(--ink2)" onclick="saveJSON()">↓ Save JSON</button>
+    <button class="btn btn-submit btn-lg" id="submit-btn" onclick="submitToAirtable()" disabled>
+      ↗ Submit Project
+    </button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+(function(){
+  const d = new Date();
+  const yy = d.getFullYear().toString().slice(2);
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const seq = String(Math.floor(Math.random()*900)+100);
+  const projNum = `CC-${yy}${mm}-${seq}`;
+  document.getElementById('proj-num').placeholder = projNum;
+  document.getElementById('fdate').textContent = d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  loadAtConfig();
+  updateSubmitBar();
+
+  // Live update submit bar
+  document.getElementById('proj-num').addEventListener('input', updateSubmitBar);
+  document.getElementById('proj-status').addEventListener('change', updateSubmitBar);
+})();
+
+/* ══════════════════════════════════════════════════
+   SUBMIT BAR
+══════════════════════════════════════════════════ */
+function updateSubmitBar() {
+  const pn = document.getElementById('proj-num').value || document.getElementById('proj-num').placeholder;
+  const st = document.getElementById('proj-status').value;
+  document.getElementById('sb-project').textContent = pn;
+  document.getElementById('sb-status').textContent = 'Status: ' + st;
+  const cfg = getAtConfig();
+  const connected = cfg.token && cfg.base && cfg.table;
+  const sbAt = document.getElementById('sb-at-status');
+  const btn  = document.getElementById('submit-btn');
+  if(connected) {
+    sbAt.textContent = '🟢 Ready to submit';
+    sbAt.style.color = 'var(--ok)';
+    btn.disabled = false;
+  } else {
+    // Don't mention Airtable to end users — just say not configured yet
+    sbAt.textContent = 'Not yet configured for submission';
+    sbAt.style.color = 'var(--ink3)';
+    btn.disabled = true;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   ADMIN ACCESS — PIN listener
+   Type 2429 anywhere on the page (not in a text field)
+   to reveal the Airtable config panel.
+══════════════════════════════════════════════════ */
+(function(){
+  const PIN = '2429';
+  let buf = '';
+  document.addEventListener('keydown', e => {
+    // Don't intercept when typing in inputs/textareas
+    if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+    if(/^[0-9]$/.test(e.key)) {
+      buf += e.key;
+      if(buf.length > PIN.length) buf = buf.slice(-PIN.length);
+      if(buf === PIN) {
+        buf = '';
+        document.getElementById('admin-btn').style.display = 'inline-flex';
+        document.getElementById('at-panel').classList.add('open');
+      }
+    } else {
+      buf = '';
+    }
+  });
+})();
+
+/* ══════════════════════════════════════════════════
+   AIRTABLE CONFIG
+══════════════════════════════════════════════════ */
+function toggleAtPanel() {
+  document.getElementById('at-panel').classList.toggle('open');
+}
+function getAtConfig() {
+  return {
+    token: localStorage.getItem('at_token') || '',
+    base:  localStorage.getItem('at_base')  || '',
+    table: localStorage.getItem('at_table') || '',
+  };
+}
+function loadAtConfig() {
+  const c = getAtConfig();
+  document.getElementById('at-token').value = c.token;
+  document.getElementById('at-base').value  = c.base;
+  document.getElementById('at-table').value = c.table;
+}
+function clearAtConfig() {
+  ['at_token','at_base','at_table'].forEach(k => localStorage.removeItem(k));
+  ['at-token','at-base','at-table','at-table-sel'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.value=''; if(id==='at-table-sel') el.style.display='none'; }
+  });
+  showAtStatus('','');
+  updateSubmitBar();
+}
+function showAtStatus(type, msg) {
+  const el = document.getElementById('at-status');
+  el.className = 'at-status ' + (type==='ok'?'at-ok':type==='error'?'at-err':type==='loading'?'at-loading':'');
+  el.textContent = msg;
+  el.style.display = msg ? 'inline-block' : 'none';
+}
+function showAtDiag(lines) {
+  const el = document.getElementById('at-diag');
+  if(!el) return;
+  el.style.display = 'block';
+  el.innerHTML = lines.map(l=>`<div>${l}</div>`).join('');
+}
+function getAtBase() {
+  let base = document.getElementById('at-base').value.trim();
+  const m = base.match(/app[A-Za-z0-9]{10,}/);
+  if(m) { base = m[0]; document.getElementById('at-base').value = base; }
+  return base;
+}
+async function atFetchTables() {
+  const token = document.getElementById('at-token').value.trim();
+  const base  = getAtBase();
+  if(!token) { showAtStatus('error','Enter token first'); return; }
+  if(!base||!base.startsWith('app')) { showAtStatus('error','Enter a valid Base ID (starts with "app")'); return; }
+  showAtStatus('loading','Fetching tables...');
+  try {
+    const r = await fetch(`https://api.airtable.com/v0/meta/bases/${base}/tables`,
+      { headers:{ Authorization:`Bearer ${token}` } });
+    if(r.ok) {
+      const d = await r.json();
+      const tables = d.tables||[];
+      showAtDiag([`✓ Found ${tables.length} table(s): ${tables.map(t=>'"'+t.name+'"').join(', ')}`]);
+      showAtStatus('ok',`✓ ${tables.length} tables — select below`);
+      const sel = document.getElementById('at-table-sel');
+      sel.innerHTML = '<option value="">— select table —</option>' +
+        tables.map(t=>`<option value="${t.name}">${t.name}</option>`).join('');
+      sel.style.display = 'block';
+      sel.onchange = () => { if(sel.value) document.getElementById('at-table').value = sel.value; };
+      const cur = document.getElementById('at-table').value;
+      if(cur && tables.find(t=>t.name===cur)) sel.value = cur;
+    } else {
+      const err = await r.json().catch(()=>({}));
+      const msg = err.error?.message||r.statusText;
+      const diag = [`✗ ${r.status}: ${msg}`];
+      if(r.status===401) diag.push('Token invalid or missing schema.bases:read scope');
+      if(r.status===404) diag.push('Base ID not found — copy the appXXXX from your Airtable base URL (Help → API docs)');
+      showAtDiag(diag);
+      showAtStatus('error',`${r.status}: ${msg}`);
+    }
+  } catch(e) { showAtStatus('error','Network error: '+e.message); }
+}
+async function saveAtConfig() {
+  const token = document.getElementById('at-token').value.trim();
+  const base  = getAtBase();
+  const table = document.getElementById('at-table').value.trim();
+  if(!token||!base||!table) { showAtStatus('error','Fill in all three fields'); return; }
+  if(!base.startsWith('app')) { showAtStatus('error','Base ID must start with "app"'); return; }
+  if(!token.startsWith('pat')&&!token.startsWith('key')) { showAtStatus('error','Use a Personal Access Token (starts with "pat")'); return; }
+  localStorage.setItem('at_token',token);
+  localStorage.setItem('at_base',base);
+  localStorage.setItem('at_table',table);
+  showAtStatus('loading','Testing...');
+  showAtDiag([`→ Connecting to "${table}" in base ${base}...`]);
+  try {
+    const r = await fetch(`https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}?maxRecords=1`,
+      { headers:{ Authorization:`Bearer ${token}` } });
+    if(r.ok) {
+      showAtDiag([`✓ Connected to "${table}"`]);
+      showAtStatus('ok','✓ Connected!');
+      updateSubmitBar();
+    } else {
+      const err = await r.json().catch(()=>({}));
+      const msg = err.error?.message||r.statusText;
+      const diag = [`✗ ${r.status}: ${msg}`];
+      if(r.status===404) diag.push('Table name mismatch — use "Fetch Tables →" button to pick the exact name', 'Or check that Base ID is correct');
+      if(r.status===401) diag.push('Token is invalid or expired');
+      if(r.status===403) diag.push('Token lacks data.records:read permission');
+      showAtDiag(diag);
+      showAtStatus('error',`${r.status}: ${msg}`);
+    }
+  } catch(e) { showAtStatus('error','Network error: '+e.message); }
+}
+
+/* ══════════════════════════════════════════════════
+   COLLECT FORM DATA
+══════════════════════════════════════════════════ */
+function collectFormData() {
+  const v = id => document.getElementById(id)?.value?.trim() || '';
+  const checks = name => [...document.querySelectorAll(`input[name=${name}]:checked`)].map(c=>c.value).join(', ');
+
+  return {
+    // Identifiers
+    'Project Number':    v('proj-num') || document.getElementById('proj-num').placeholder,
+    'Status':            v('proj-status'),
+    'Sales Rep':         v('sales-rep'),
+    'Date Created':      new Date().toISOString().slice(0,10),
+    // Customer
+    'Company Name':      v('co-name'),
+    'Industry':          v('co-industry'),
+    'Contact Name':      v('contact-name'),
+    'Contact Title':     v('contact-title'),
+    'Department':        v('contact-dept'),
+    'Email':             v('contact-email'),
+    'Phone':             v('contact-phone'),
+    'Annual Volume':     v('co-volume'),
+    // Product
+    'Product Name':      v('prod-name'),
+    'Product Category':  v('prod-cat'),
+    'Shipment Weight (lbs)': parseFloat(v('prod-weight')) || null,
+    'Units Per Shipment': parseInt(v('prod-units')) || null,
+    'Regulatory Class':  v('reg-class'),
+    'Product Notes':     v('prod-desc'),
+    // Temperature
+    'Temp Min (C)':      parseFloat(v('temp-min')) || null,
+    'Temp Max (C)':      parseFloat(v('temp-max')) || null,
+    'Temp Target (C)':   parseFloat(v('temp-target')) || null,
+    'Temp Start (C)':    parseFloat(v('temp-start')) || null,
+    'Temp Classification': v('temp-class'),
+    'Max Excursion (hr)': parseFloat(v('excursion-time')) || null,
+    'Freeze Sensitivity': v('freeze-sens'),
+    // Logistics
+    'Origin':            v('origin'),
+    'Destination':       v('dest'),
+    'Carrier':           v('carrier'),
+    'Transit Duration':  v('transit-dur'),
+    'Protection Window (hr)': parseFloat(v('prot-window')) || null,
+    'Seasonal Requirement': v('season'),
+    'Worst-Case Ambient (C)': parseFloat(v('amb-summer')) || null,
+    'Transit Challenges': checks('challenge'),
+    // PCM
+    'PCM Setpoint (C)':  parseFloat(v('pcm-setpoint')) || null,
+    'PCM Type':          v('pcm-type'),
+    'PCM Bottle Size':   v('pcm-bottle'),
+    'PCM Packs/Shipment': parseInt(v('pcm-qty')) || null,
+    'PCM Conditioning':  v('pcm-cond'),
+    'PCM Budget':        v('pcm-budget'),
+    'Current Coolant':   v('pcm-current'),
+    // Testing
+    'Test Standard':     v('test-std'),
+    'Validation Stage':  v('test-stage'),
+    'Validation Timeline (days)': parseInt(v('test-timeline')) || null,
+    'Required Docs':     checks('docs'),
+    // Priorities
+    'Priorities':        [...document.querySelectorAll('.prio.active')].map(e=>e.textContent.trim()).join(', '),
+    'Launch Date':       v('launch-date'),
+    'Decision Timeline': v('decision-timeline'),
+    'Change Reason':     v('change-reason'),
+    'Constraints':       v('constraints'),
+    // Engineering
+    'Recommended PCM':   v('eng-pcm'),
+    'Recommended Insulation': v('eng-insul'),
+    'Calculated Window (hr)': parseFloat(v('eng-window')) || null,
+    'Safety Margin (hr)': parseFloat(v('eng-margin')) || null,
+    'ISTA 7E Status':    v('eng-ista'),
+    'Engineering Notes': v('eng-notes'),
+    'Next Actions':      v('eng-actions'),
+  };
+}
+
+/* ══════════════════════════════════════════════════
+   SUBMIT TO AIRTABLE
+══════════════════════════════════════════════════ */
+
+// Cache of known field names per table — fetched once per session
+let _atFieldCache = null;
+
+async function getAtFields(cfg) {
+  if(_atFieldCache) return _atFieldCache;
+  try {
+    const r = await fetch(`https://api.airtable.com/v0/meta/bases/${cfg.base}/tables`,
+      { headers:{ Authorization:`Bearer ${cfg.token}` }});
+    if(!r.ok) return null;
+    const d = await r.json();
+    const tbl = d.tables?.find(t => t.name === cfg.table);
+    if(!tbl) return null;
+    _atFieldCache = new Set(tbl.fields.map(f => f.name));
+    return _atFieldCache;
+  } catch(e) { return null; }
+}
+
+async function submitToAirtable() {
+  const btn = document.getElementById('submit-btn');
+  const cfg = getAtConfig();
+  if(!cfg.token||!cfg.base||!cfg.table) {
+    alert('Configure Airtable connection first (⚙ Airtable Config button).');
+    return;
+  }
+
+  // Validate required fields
+  const required = [
+    ['co-name','Company Name'],['contact-name','Contact Name'],
+    ['contact-email','Email'],['prod-name','Product Name'],
+    ['prod-cat','Product Category'],['temp-min','Minimum Temperature'],
+    ['temp-max','Maximum Temperature'],['temp-class','Temperature Classification'],
+    ['origin','Origin'],['dest','Destination'],
+    ['carrier','Carrier'],['transit-dur','Transit Duration'],
+    ['prot-window','Protection Window'],['pcm-setpoint','PCM Setpoint'],
+  ];
+  const missing = required.filter(([id]) => !document.getElementById(id)?.value?.trim());
+  if(missing.length) {
+    alert('Please complete required fields:\n\n' + missing.map(([,name])=>'• '+name).join('\n'));
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting...';
+
+  try {
+    // 1. Collect all form data
+    let fields = collectFormData();
+
+    // 2. Remove empty/null values
+    Object.keys(fields).forEach(k => {
+      if(fields[k]===null || fields[k]==='') delete fields[k];
+    });
+
+    // 3. Fetch the table's actual field list and filter to only matching fields
+    //    This means the form never errors on missing columns — it just skips them.
+    const knownFields = await getAtFields(cfg);
+    if(knownFields) {
+      const skipped = [];
+      Object.keys(fields).forEach(k => {
+        if(!knownFields.has(k)) { skipped.push(k); delete fields[k]; }
+      });
+      if(skipped.length) {
+        console.info('Skipped fields not in Airtable table (add columns to capture them):', skipped);
+      }
+    }
+
+    // 4. Submit
+    const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${cfg.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+
+    if(resp.ok) {
+      const rec = await resp.json();
+      // Reset field cache so next submit picks up any new columns added
+      _atFieldCache = null;
+      btn.textContent = '✓ Submitted!';
+      btn.style.background = '#15803d';
+      const projNum = fields['Project Number'];
+      setTimeout(() => {
+        if(confirm(`✓ Project "${projNum}" submitted to Airtable!\n\nRecord ID: ${rec.id}\n\nClear form for a new project?`)) clearForm();
+        btn.textContent = '↗ Submit to Airtable';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 800);
+    } else {
+      const err = await resp.json();
+      const msg = err.error?.message || JSON.stringify(err);
+      // Reset cache so next attempt re-fetches schema
+      _atFieldCache = null;
+      alert('Airtable error: ' + msg +
+        '\n\nTip: Open ⚙ Airtable Config and click "Fetch Tables" to verify your table name is correct.');
+      btn.textContent = '↗ Submit to Airtable';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Network error: ' + e.message);
+    btn.textContent = '↗ Submit to Airtable';
+    btn.disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════ */
+function clearForm() {
+  document.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],textarea').forEach(el=>el.value='');
+  document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  document.querySelectorAll('input[type=checkbox],input[type=radio]').forEach(el=>el.checked=false);
+  document.querySelectorAll('.prio').forEach(el=>el.classList.remove('active'));
+  updateSubmitBar();
+}
+
+function saveJSON() {
+  const data = collectFormData();
+  data['_exported'] = new Date().toISOString();
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cold-chain-intake-${(data['Company Name']||'project').replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+</script>
+</body>
+</html>
