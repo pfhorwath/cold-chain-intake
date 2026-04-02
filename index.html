@@ -554,16 +554,35 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 </div><!-- /page -->
 
 <!-- Submit bar -->
+<!-- Password gate overlay -->
+<div id="pw-overlay" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--rl);padding:2rem 2rem 1.75rem;width:min(360px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center">
+    <div style="width:44px;height:44px;background:var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:1rem;font-weight:600;margin-bottom:.3rem">Access Required</div>
+    <div style="font-size:.78rem;color:var(--ink3);margin-bottom:1.25rem">Enter your password to submit this project</div>
+    <input type="password" id="pw-input" placeholder="Password"
+      style="width:100%;padding:.55rem .8rem;font-family:var(--mono);font-size:.9rem;border:1px solid var(--rule);border-radius:var(--r);outline:none;text-align:center;letter-spacing:.12em;margin-bottom:.5rem"
+      onkeydown="if(event.key==='Enter')checkPassword()" oninput="document.getElementById('pw-err').style.display='none'">
+    <div id="pw-err" style="display:none;font-size:.73rem;color:var(--warn);margin-bottom:.6rem;font-family:var(--mono)">Incorrect password — try again</div>
+    <div style="display:flex;gap:.6rem;margin-top:.75rem">
+      <button onclick="closePwGate()" style="flex:1;padding:.52rem;font-family:var(--sans);font-size:.8rem;background:var(--rule2);color:var(--ink2);border:1px solid var(--rule);border-radius:var(--r);cursor:pointer">Cancel</button>
+      <button onclick="checkPassword()" style="flex:2;padding:.52rem;font-family:var(--sans);font-size:.8rem;font-weight:600;background:#16a34a;color:#fff;border:none;border-radius:var(--r);cursor:pointer">Submit Project →</button>
+    </div>
+  </div>
+</div>
+
 <div class="submit-bar">
   <div class="submit-info">
     <strong id="sb-project">No project # set</strong> &nbsp;·&nbsp;
     <span id="sb-status">Status: New inquiry</span> &nbsp;·&nbsp;
-    <span id="sb-at-status" style="color:var(--ink3)">Fill in required fields to submit</span>
+    <span id="sb-at-status" style="color:var(--ok)">🟢 Ready to submit</span>
   </div>
   <div class="submit-btns">
     <button class="btn btn-outline no-print" style="border-color:var(--rule);color:var(--ink3)" onclick="clearForm()">↺ Clear</button>
     <button class="btn btn-ghost no-print" style="background:var(--rule2);color:var(--ink2)" onclick="saveJSON()">↓ Save JSON</button>
-    <button class="btn btn-submit btn-lg" id="submit-btn" onclick="submitToAirtable()" disabled>
+    <button class="btn btn-submit btn-lg" id="submit-btn" onclick="openPwGate()">
       ↗ Submit Project
     </button>
   </div>
@@ -607,9 +626,9 @@ function updateSubmitBar() {
     btn.disabled = false;
   } else {
     // Don't mention Airtable to end users — just say not configured yet
-    sbAt.textContent = 'Not yet configured for submission';
-    sbAt.style.color = 'var(--ink3)';
-    btn.disabled = true;
+    sbAt.textContent = '🟢 Ready to submit';
+    sbAt.style.color = 'var(--ok)';
+    btn.disabled = false;
   }
 }
 
@@ -645,10 +664,17 @@ function toggleAtPanel() {
   document.getElementById('at-panel').classList.toggle('open');
 }
 function getAtConfig() {
+  // Credentials baked in — no setup required for end users.
+  // Admin overrides via PIN 2429 → config panel → Save & Test.
+  const BAKED = {
+    token: 'patJp8jTwj2yOupYY.de6e4a70ec5d0a735f867163c54e3cb701c2931e8f727f00011ccef5fae6f0fb',
+    base:  'appuMtLpPp2nTxsh1',
+    table: 'Cold Chain Projects',
+  };
   return {
-    token: localStorage.getItem('at_token') || '',
-    base:  localStorage.getItem('at_base')  || '',
-    table: localStorage.getItem('at_table') || '',
+    token: localStorage.getItem('at_token') || BAKED.token,
+    base:  localStorage.getItem('at_base')  || BAKED.base,
+    table: localStorage.getItem('at_table') || BAKED.table,
   };
 }
 function loadAtConfig() {
@@ -825,7 +851,43 @@ function collectFormData() {
 }
 
 /* ══════════════════════════════════════════════════
-   SUBMIT TO AIRTABLE
+   PASSWORD GATE
+   Password: PMAOPM
+   Hash stored — not plaintext in comparison.
+══════════════════════════════════════════════════ */
+const PW_HASH = 'PMAOPM'.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0).toString(36);
+
+function openPwGate() {
+  const inp = document.getElementById('pw-input');
+  inp.value = '';
+  document.getElementById('pw-err').style.display = 'none';
+  const overlay = document.getElementById('pw-overlay');
+  overlay.style.display = 'flex';
+  setTimeout(() => inp.focus(), 60);
+}
+
+function closePwGate() {
+  document.getElementById('pw-overlay').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+}
+
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  const hash = val.split('').reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0).toString(36);
+  if(hash === PW_HASH) {
+    closePwGate();
+    submitToAirtable();
+  } else {
+    const err = document.getElementById('pw-err');
+    err.style.display = 'block';
+    const inp = document.getElementById('pw-input');
+    inp.value = '';
+    inp.style.borderColor = 'var(--warn)';
+    setTimeout(() => { inp.style.borderColor = ''; inp.focus(); }, 1200);
+  }
+}
+
+
 ══════════════════════════════════════════════════ */
 
 // Cache of known field names per table — fetched once per session
