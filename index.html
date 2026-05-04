@@ -175,6 +175,24 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
       <button class="btn" style="background:#334155;color:#94a3b8" onclick="clearAtConfig()">Clear</button>
       <span class="at-status" id="at-status"></span>
     </div>
+
+    <!-- Rep email list manager -->
+    <div style="margin-top:1.1rem;border-top:1px solid #334155;padding-top:1rem">
+      <div style="color:rgba(255,255,255,.7);font-size:.72rem;font-weight:600;margin-bottom:.65rem;display:flex;align-items:center;justify-content:space-between">
+        <span>📧 Sales Rep Email List</span>
+        <span style="font-size:.62rem;color:#64748b;font-weight:400">Appears as dropdown on submit bar</span>
+      </div>
+      <div id="rep-list" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.6rem"></div>
+      <div style="display:flex;gap:.5rem">
+        <input type="text" id="rep-new-name" placeholder="Rep name" style="flex:1;font-family:var(--sans);font-size:.78rem;background:#0f172a;border:1px solid #334155;border-radius:var(--r);padding:.38rem .6rem;color:#e2e8f0;outline:none">
+        <input type="email" id="rep-new-email" placeholder="email@company.com" style="flex:2;font-family:var(--mono);font-size:.78rem;background:#0f172a;border:1px solid #334155;border-radius:var(--r);padding:.38rem .6rem;color:#e2e8f0;outline:none">
+        <button onclick="addRep()" style="padding:.38rem .75rem;background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb;border-radius:var(--r);font-size:.75rem;cursor:pointer;white-space:nowrap">+ Add</button>
+      </div>
+      <div style="margin-top:.6rem;display:flex;gap:.5rem">
+        <button onclick="saveReps()" style="padding:.38rem .85rem;background:var(--ac);color:#fff;border:none;border-radius:var(--r);font-size:.75rem;font-weight:600;cursor:pointer">Save Rep List</button>
+        <span id="rep-saved-msg" style="display:none;font-size:.72rem;color:#4ade80;font-family:var(--mono);align-self:center">✓ Saved</span>
+      </div>
+    </div>
   </div>
 
   <!-- Form header -->
@@ -184,7 +202,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
       <div class="fsub">Complete all required fields before engineering review &nbsp;·&nbsp; Submits directly to Airtable</div>
     </div>
     <div class="fid">
-      <div><strong>Project #</strong> <input type="text" id="proj-num" placeholder="CC-2603-XXX"></div>
+      <div><strong>Project #</strong> <input type="text" id="proj-num" placeholder="Auto-generated" style="color:var(--ac-dk,#1647c0);font-style:italic" title="Assigned automatically on submit — or type your own to override"></div>
       <div><strong>Date</strong> <span id="fdate"></span></div>
       <div><strong>Sales rep</strong> <input type="text" id="sales-rep" placeholder="Name"></div>
       <div><strong>Status</strong>
@@ -580,9 +598,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <span id="sb-at-status" style="color:var(--ok)">🟢 Ready to submit</span>
   </div>
   <div class="submit-btns">
-    <button class="btn btn-outline no-print" style="border-color:var(--rule);color:var(--ink3)" onclick="clearForm()">↺ Clear</button>
-    <button class="btn btn-ghost no-print" style="background:var(--rule2);color:var(--ink2)" onclick="saveJSON()">↓ Save JSON</button>
-    <button class="btn btn-submit btn-lg" id="submit-btn" onclick="openPwGate()">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <label style="font-size:.62rem;font-weight:600;color:var(--ink3);letter-spacing:.04em;text-transform:uppercase">Email copy to</label>
+      <div style="display:flex;gap:0">
+        <select id="email-rep-sel" onchange="onRepSelChange()"
+          style="font-family:var(--sans);font-size:.78rem;padding:.38rem .65rem;border:1px solid var(--rule);border-radius:var(--r) 0 0 var(--r);outline:none;background:var(--white);color:var(--ink);min-width:160px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%276%27%3E%3Cpath d=%27M0 0l5 6 5-6z%27 fill=%27%237a7d87%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right .5rem center;padding-right:1.6rem">
+          <option value="">— No email copy —</option>
+        </select>
+        <input type="email" id="email-custom" placeholder="or type address"
+          style="font-family:var(--sans);font-size:.78rem;padding:.38rem .65rem;border:1px solid var(--rule);border-left:none;border-radius:0 var(--r) var(--r) 0;outline:none;width:170px"
+          oninput="if(this.value)document.getElementById('email-rep-sel').value=''">
+      </div>
+    </div>
+    <button class="btn btn-outline no-print" style="border-color:var(--rule);color:var(--ink3);align-self:flex-end" onclick="clearForm()">↺ Clear</button>
+    <button class="btn btn-ghost no-print" style="background:var(--rule2);color:var(--ink2);align-self:flex-end" onclick="saveJSON()">↓ JSON</button>
+    <button class="btn btn-submit btn-lg" id="submit-btn" onclick="openPwGate()" style="align-self:flex-end">
       ↗ Submit Project
     </button>
   </div>
@@ -594,20 +624,54 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 ══════════════════════════════════════════════════ */
 (function(){
   const d = new Date();
-  const yy = d.getFullYear().toString().slice(2);
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const seq = String(Math.floor(Math.random()*900)+100);
-  const projNum = `CC-${yy}${mm}-${seq}`;
-  document.getElementById('proj-num').placeholder = projNum;
   document.getElementById('fdate').textContent = d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  // Show a pending placeholder — real number generated on submit from Airtable sequence
+  document.getElementById('proj-num').placeholder = 'Auto-generated on submit';
+  document.getElementById('proj-num').title = 'Project number is assigned automatically in CC-YYMMDD-NNN format';
   loadAtConfig();
   updateSubmitBar();
-
-  // Live update submit bar
+  buildRepDropdown();     // Populate email dropdown from saved rep list
+  renderRepAdminList();   // Populate admin panel rep list
   document.getElementById('proj-num').addEventListener('input', updateSubmitBar);
   document.getElementById('proj-status').addEventListener('change', updateSubmitBar);
 })();
 
+/* ══════════════════════════════════════════════════
+   SEQUENTIAL PROJECT NUMBER GENERATOR
+   Format: CC-YYMMDD-NNN
+   Example: CC-260504-001, CC-260504-002, ...
+   Queries Airtable for today's highest sequence number,
+   increments by 1. Falls back to 001 if none today.
+══════════════════════════════════════════════════ */
+async function generateProjectNumber(cfg) {
+  const d    = new Date();
+  const yy   = d.getFullYear().toString().slice(2);
+  const mm   = String(d.getMonth()+1).padStart(2,'0');
+  const dd   = String(d.getDate()).padStart(2,'0');
+  const prefix = `CC-${yy}${mm}${dd}-`;
+
+  try {
+    // Search Airtable for any records with today's prefix in Project Number field
+    const filterFormula = encodeURIComponent(`FIND("${prefix}", {Project Number})`);
+    const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}` +
+                `?fields%5B%5D=Project%20Number&filterByFormula=${filterFormula}&sort%5B0%5D%5Bfield%5D=Project%20Number&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=1`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${cfg.token}` } });
+    if(r.ok) {
+      const data = await r.json();
+      if(data.records && data.records.length > 0) {
+        // Parse the sequence number from the last record today and increment
+        const last = data.records[0].fields['Project Number'] || '';
+        const match = last.match(/CC-\d{6}-(\d+)$/);
+        const nextSeq = match ? parseInt(match[1], 10) + 1 : 1;
+        return `${prefix}${String(nextSeq).padStart(3,'0')}`;
+      }
+    }
+  } catch(e) {
+    console.warn('Could not fetch sequence from Airtable, using fallback:', e);
+  }
+  // Fallback — if Airtable unreachable, start at 001 for today
+  return `${prefix}001`;
+}
 /* ══════════════════════════════════════════════════
    SUBMIT BAR
 ══════════════════════════════════════════════════ */
@@ -650,6 +714,7 @@ function updateSubmitBar() {
         buf = '';
         document.getElementById('admin-btn').style.display = 'inline-flex';
         document.getElementById('at-panel').classList.add('open');
+        renderRepAdminList();
       }
     } else {
       buf = '';
@@ -783,7 +848,7 @@ function collectFormData() {
 
   return {
     // Identifiers
-    'Project Number':    v('proj-num') || document.getElementById('proj-num').placeholder,
+    'Project Number':    v('proj-num') || document.getElementById('proj-num').placeholder || 'Pending',
     'Status':            v('proj-status'),
     'Sales Rep':         v('sales-rep'),
     'Date Created':      new Date().toISOString().slice(0,10),
@@ -933,13 +998,24 @@ async function submitToAirtable() {
   }
 
   btn.disabled = true;
-  btn.textContent = '⏳ Submitting...';
+  btn.textContent = '⏳ Generating project number...';
 
   try {
-    // 1. Collect all form data
-    let fields = collectFormData();
+    // 1. Generate sequential project number from Airtable
+    const projNum = document.getElementById('proj-num').value.trim() ||
+                    await generateProjectNumber(cfg);
+    document.getElementById('proj-num').value = projNum;
+    document.getElementById('proj-num').placeholder = projNum;
+    updateSubmitBar();
 
-    // 2. Remove empty/null values
+    btn.textContent = '⏳ Submitting...';
+
+    // 2. Collect all form data
+    let fields = collectFormData();
+    // Ensure the generated number is used
+    fields['Project Number'] = projNum;
+
+    // 3. Remove empty/null values
     Object.keys(fields).forEach(k => {
       if(fields[k]===null || fields[k]==='') delete fields[k];
     });
@@ -972,9 +1048,16 @@ async function submitToAirtable() {
       btn.textContent = '✓ Submitted!';
       btn.style.background = '#15803d';
       const projNum = fields['Project Number'];
+      // Send email copy if recipient selected — do this before the confirm dialog
+      const emailTo = getEmailRecipient();
       setTimeout(() => {
-        if(confirm(`✓ Project "${projNum}" submitted to Airtable!\n\nRecord ID: ${rec.id}\n\nClear form for a new project?`)) clearForm();
-        btn.textContent = '↗ Submit to Airtable';
+        const msg = emailTo
+          ? `✓ Project "${projNum}" submitted to Airtable!\n\nRecord ID: ${rec.id}\n\nYour email app will open to send a copy to:\n${emailTo}\n\nClear form for a new project?`
+          : `✓ Project "${projNum}" submitted to Airtable!\n\nRecord ID: ${rec.id}\n\nClear form for a new project?`;
+        const doClear = confirm(msg);
+        if(emailTo) sendEmailCopy(fields, projNum);
+        if(doClear) clearForm();
+        btn.textContent = '↗ Submit Project';
         btn.style.background = '';
         btn.disabled = false;
       }, 800);
@@ -998,6 +1081,153 @@ async function submitToAirtable() {
 /* ══════════════════════════════════════════════════
    UTILITIES
 ══════════════════════════════════════════════════ */
+
+/* ── REP EMAIL LIST ── */
+function getReps() {
+  try { return JSON.parse(localStorage.getItem('cc_reps') || '[]'); }
+  catch(e) { return []; }
+}
+function saveReps() {
+  localStorage.setItem('cc_reps', JSON.stringify(getReps()));
+  buildRepDropdown();
+  const msg = document.getElementById('rep-saved-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+}
+function addRep() {
+  const name  = document.getElementById('rep-new-name').value.trim();
+  const email = document.getElementById('rep-new-email').value.trim();
+  if(!email) { alert('Enter an email address'); return; }
+  const reps = getReps();
+  if(reps.find(r => r.email === email)) { alert('That email is already in the list'); return; }
+  reps.push({ name: name || email, email });
+  localStorage.setItem('cc_reps', JSON.stringify(reps));
+  document.getElementById('rep-new-name').value  = '';
+  document.getElementById('rep-new-email').value = '';
+  renderRepAdminList();
+  buildRepDropdown();
+}
+function removeRep(email) {
+  const reps = getReps().filter(r => r.email !== email);
+  localStorage.setItem('cc_reps', JSON.stringify(reps));
+  renderRepAdminList();
+  buildRepDropdown();
+}
+function renderRepAdminList() {
+  const reps = getReps();
+  const el   = document.getElementById('rep-list');
+  if(!el) return;
+  if(!reps.length) {
+    el.innerHTML = '<div style="font-size:.7rem;color:#475569;font-style:italic">No reps added yet</div>';
+    return;
+  }
+  el.innerHTML = reps.map(r => `
+    <div style="display:flex;align-items:center;gap:.5rem;background:#0f172a;border-radius:4px;padding:.3rem .6rem">
+      <span style="flex:1;font-size:.75rem;color:#e2e8f0">${r.name}</span>
+      <span style="font-family:var(--mono);font-size:.7rem;color:#60a5fa">${r.email}</span>
+      <button onclick="removeRep('${r.email}')"
+        style="background:none;border:none;color:#f87171;cursor:pointer;font-size:.8rem;padding:0 .2rem">✕</button>
+    </div>`).join('');
+}
+function buildRepDropdown() {
+  const reps = getReps();
+  const sel  = document.getElementById('email-rep-sel');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— No email copy —</option>' +
+    reps.map(r => `<option value="${r.email}">${r.name} &lt;${r.email}&gt;</option>`).join('');
+  if(current && reps.find(r => r.email === current)) sel.value = current;
+}
+function onRepSelChange() {
+  // Clear custom input when a rep is picked from dropdown
+  const sel = document.getElementById('email-rep-sel');
+  if(sel.value) document.getElementById('email-custom').value = '';
+}
+function getEmailRecipient() {
+  const custom = document.getElementById('email-custom').value.trim();
+  if(custom) return custom;
+  return document.getElementById('email-rep-sel').value || '';
+}
+
+/* ── EMAIL GENERATION ── */
+function buildEmailBody(fields, projNum) {
+  const v = (k) => fields[k] || '—';
+  const lines = [
+    `COLD CHAIN PROJECT INTAKE SUMMARY`,
+    `Project Number: ${projNum}`,
+    `Date: ${v('Date Created')}`,
+    `Status: ${v('Status')}`,
+    `Sales Rep: ${v('Sales Rep')}`,
+    ``,
+    `── CUSTOMER ─────────────────────────`,
+    `Company: ${v('Company Name')}`,
+    `Industry: ${v('Industry')}`,
+    `Contact: ${v('Contact Name')} — ${v('Contact Title')}`,
+    `Email: ${v('Email')}`,
+    `Phone: ${v('Phone')}`,
+    `Annual Volume: ${v('Annual Volume')}`,
+    ``,
+    `── PRODUCT ──────────────────────────`,
+    `Product: ${v('Product Name')}`,
+    `Category: ${v('Product Category')}`,
+    `Regulatory Class: ${v('Regulatory Class')}`,
+    `Notes: ${v('Product Notes')}`,
+    ``,
+    `── TEMPERATURE ──────────────────────`,
+    `Range: ${v('Temp Min (C)')}°C to ${v('Temp Max (C)')}°C`,
+    `Target / Setpoint: ${v('Temp Target (C)')}°C`,
+    `Classification: ${v('Temp Classification')}`,
+    `Freeze Sensitivity: ${v('Freeze Sensitivity')}`,
+    `Max Excursion Allowed: ${v('Max Excursion (hr)')} hr`,
+    ``,
+    `── LOGISTICS ────────────────────────`,
+    `Origin: ${v('Origin')}`,
+    `Destination: ${v('Destination')}`,
+    `Carrier: ${v('Carrier')}`,
+    `Transit Duration: ${v('Transit Duration')}`,
+    `Required Protection Window: ${v('Protection Window (hr)')} hr`,
+    `Seasonal Requirement: ${v('Seasonal Requirement')}`,
+    `Transit Challenges: ${v('Transit Challenges')}`,
+    ``,
+    `── PCM REQUIREMENTS ─────────────────`,
+    `PCM Setpoint: ${v('PCM Setpoint (C)')}°C`,
+    `PCM Type: ${v('PCM Type')}`,
+    `Bottle Size: ${v('PCM Bottle Size')}`,
+    `Packs / Shipment: ${v('PCM Packs/Shipment')}`,
+    `Conditioning: ${v('PCM Conditioning')}`,
+    `Budget: ${v('PCM Budget')}`,
+    `Current Coolant: ${v('Current Coolant')}`,
+    ``,
+    `── TESTING & VALIDATION ─────────────`,
+    `Test Standard: ${v('Test Standard')}`,
+    `Validation Stage: ${v('Validation Stage')}`,
+    `Timeline: ${v('Validation Timeline (days)')} days`,
+    `Required Docs: ${v('Required Docs')}`,
+    ``,
+    `── PRIORITIES & TIMELINE ────────────`,
+    `Priorities: ${v('Priorities')}`,
+    `Target Launch: ${v('Launch Date')}`,
+    `Decision Timeline: ${v('Decision Timeline')}`,
+    `Change Reason: ${v('Change Reason')}`,
+    `Constraints: ${v('Constraints')}`,
+    ``,
+    `─────────────────────────────────────`,
+    `Submitted via Cold Chain Project Intake Form`,
+    `Record saved to Airtable — Project ${projNum}`,
+  ];
+  return lines.join('\n');
+}
+
+function sendEmailCopy(fields, projNum) {
+  const to = getEmailRecipient();
+  if(!to) return; // No recipient selected — skip silently
+  const subject = encodeURIComponent(`Cold Chain Project ${projNum} — ${fields['Company Name'] || 'New Submission'}`);
+  const body    = encodeURIComponent(buildEmailBody(fields, projNum));
+  // mailto: has a URL length limit (~2000 chars safely) — body may be truncated in some clients
+  // but all key fields fit comfortably
+  window.location.href = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+}
+
 function clearForm() {
   document.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],textarea').forEach(el=>el.value='');
   document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
