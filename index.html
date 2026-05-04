@@ -132,8 +132,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
     <button class="btn btn-ghost" onclick="window.print()">⎙ Print</button>
     <button class="btn btn-ghost" onclick="saveJSON()">↓ JSON</button>
     <!-- Admin panel trigger: hidden, accessed by typing PIN 2429 anywhere -->
-    <button class="btn btn-ghost" id="admin-btn" onclick="toggleAtPanel()"
-      style="display:none;opacity:.5;font-size:.65rem">⚙</button>
+    <button class="btn btn-outline" id="admin-btn" onclick="toggleAtPanel()">⚙ Config</button>
   </div>
 </div>
 
@@ -751,11 +750,13 @@ function getAtConfig() {
     base:  'appuMtLpPp2nTxsh1',
     table: 'Cold Chain Projects',
   };
-  return {
-    token: localStorage.getItem('at_token') || BAKED.token,
-    base:  localStorage.getItem('at_base')  || BAKED.base,
-    table: localStorage.getItem('at_table') || BAKED.table,
-  };
+  // If localStorage has a value, use it — otherwise fall back to baked-in
+  const token = localStorage.getItem('at_token') || BAKED.token;
+  const base  = localStorage.getItem('at_base')  || BAKED.base;
+  const table = localStorage.getItem('at_table') || BAKED.table;
+  // Sanity-check: if stored table looks wrong (empty or 'Table 1'), use baked value
+  const safeTable = (!table || table === 'Table 1') ? BAKED.table : table;
+  return { token, base, table: safeTable };
 }
 function loadAtConfig() {
   const c = getAtConfig();
