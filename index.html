@@ -644,33 +644,48 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
    increments by 1. Falls back to 001 if none today.
 ══════════════════════════════════════════════════ */
 async function generateProjectNumber(cfg) {
-  const d    = new Date();
-  const yy   = d.getFullYear().toString().slice(2);
-  const mm   = String(d.getMonth()+1).padStart(2,'0');
-  const dd   = String(d.getDate()).padStart(2,'0');
+  const d      = new Date();
+  const yy     = d.getFullYear().toString().slice(2);
+  const mm     = String(d.getMonth()+1).padStart(2,'0');
+  const dd     = String(d.getDate()).padStart(2,'0');
   const prefix = `CC-${yy}${mm}${dd}-`;
 
   try {
-    // Search Airtable for any records with today's prefix in Project Number field
-    const filterFormula = encodeURIComponent(`FIND("${prefix}", {Project Number})`);
+    // Fetch recent records sorted newest-first, check locally for today's prefix.
+    // We deliberately avoid filterByFormula so this works even if the
+    // "Project Number" column doesn't exist yet in Airtable.
     const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}` +
-                `?fields%5B%5D=Project%20Number&filterByFormula=${filterFormula}&sort%5B0%5D%5Bfield%5D=Project%20Number&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=1`;
+                `?fields%5B%5D=Project%20Number&sort%5B0%5D%5Bfield%5D=Project%20Number` +
+                `&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=20`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${cfg.token}` } });
     if(r.ok) {
       const data = await r.json();
-      if(data.records && data.records.length > 0) {
-        // Parse the sequence number from the last record today and increment
-        const last = data.records[0].fields['Project Number'] || '';
-        const match = last.match(/CC-\d{6}-(\d+)$/);
-        const nextSeq = match ? parseInt(match[1], 10) + 1 : 1;
-        return `${prefix}${String(nextSeq).padStart(3,'0')}`;
-      }
+      // Find the highest sequence number for today's prefix
+      let maxSeq = 0;
+      (data.records || []).forEach(rec => {
+        const pn = rec.fields?.['Project Number'] || '';
+        if(pn.startsWith(prefix)) {
+          const match = pn.match(/CC-\d{6}-(\d+)$/);
+          if(match) {
+            const seq = parseInt(match[1], 10);
+            if(seq > maxSeq) maxSeq = seq;
+          }
+        }
+      });
+      return `${prefix}${String(maxSeq + 1).padStart(3,'0')}`;
     }
+    // If the query failed (e.g. field doesn't exist) fall through to local fallback
   } catch(e) {
-    console.warn('Could not fetch sequence from Airtable, using fallback:', e);
+    console.warn('Project number sequence lookup failed, using local fallback:', e);
   }
-  // Fallback — if Airtable unreachable, start at 001 for today
-  return `${prefix}001`;
+
+  // Local fallback — use a timestamp-based sequence stored in sessionStorage
+  // so multiple submissions in the same browser session don't collide
+  const sessionKey = `cc_seq_${yy}${mm}${dd}`;
+  const lastSeq = parseInt(sessionStorage.getItem(sessionKey) || '0', 10);
+  const nextSeq = lastSeq + 1;
+  sessionStorage.setItem(sessionKey, String(nextSeq));
+  return `${prefix}${String(nextSeq).padStart(3,'0')}`;
 }
 /* ══════════════════════════════════════════════════
    SUBMIT BAR
@@ -1001,9 +1016,19 @@ async function submitToAirtable() {
   btn.textContent = '⏳ Generating project number...';
 
   try {
-    // 1. Generate sequential project number from Airtable
-    const projNum = document.getElementById('proj-num').value.trim() ||
-                    await generateProjectNumber(cfg);
+    // 1. Generate sequential project number — wrapped separately so any
+    //    failure here never blocks the actual Airtable submission
+    let projNum = document.getElementById('proj-num').value.trim();
+    if(!projNum) {
+      try {
+        projNum = await generateProjectNumber(cfg);
+      } catch(e) {
+        // If number generation fails for any reason, use a timestamp fallback
+        const d = new Date();
+        projNum = `CC-${String(d.getFullYear()).slice(2)}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+        console.warn('Project number generation failed, using timestamp fallback:', projNum);
+      }
+    }
     document.getElementById('proj-num').value = projNum;
     document.getElementById('proj-num').placeholder = projNum;
     updateSubmitBar();
