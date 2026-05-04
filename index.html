@@ -628,6 +628,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   document.getElementById('proj-num').placeholder = 'Auto-generated on submit';
   document.getElementById('proj-num').title = 'Project number is assigned automatically in CC-YYMMDD-NNN format';
   loadAtConfig();
+  // Clear any stale table name from localStorage so the baked-in value is used
+  // Remove this line after confirming the new table name works
+  if(localStorage.getItem('at_table') && localStorage.getItem('at_table') !== 'Projects') {
+    localStorage.removeItem('at_table');
+  }
   updateSubmitBar();
   buildRepDropdown();     // Populate email dropdown from saved rep list
   renderRepAdminList();   // Populate admin panel rep list
@@ -748,14 +753,14 @@ function getAtConfig() {
   const BAKED = {
     token: 'patJp8jTwj2yOupYY.de6e4a70ec5d0a735f867163c54e3cb701c2931e8f727f00011ccef5fae6f0fb',
     base:  'appuMtLpPp2nTxsh1',
-    table: 'Cold Chain Projects',
+    table: 'Projects',
   };
   // If localStorage has a value, use it — otherwise fall back to baked-in
   const token = localStorage.getItem('at_token') || BAKED.token;
   const base  = localStorage.getItem('at_base')  || BAKED.base;
   const table = localStorage.getItem('at_table') || BAKED.table;
   // Sanity-check: if stored table looks wrong (empty or 'Table 1'), use baked value
-  const safeTable = (!table || table === 'Table 1') ? BAKED.table : table;
+  const safeTable = (!table || table === 'Table 1' || table === 'Cold Chain Projects') ? BAKED.table : table;
   return { token, base, table: safeTable };
 }
 function loadAtConfig() {
