@@ -627,12 +627,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   // Show a pending placeholder — real number generated on submit from Airtable sequence
   document.getElementById('proj-num').placeholder = 'Auto-generated on submit';
   document.getElementById('proj-num').title = 'Project number is assigned automatically in CC-YYMMDD-NNN format';
+  // Always clear stored table name — use baked-in value only
+  // This prevents stale localStorage values from overriding the correct table name
+  localStorage.removeItem('at_table');
   loadAtConfig();
-  // Clear any stale table name from localStorage so the baked-in value is used
-  // Remove this line after confirming the new table name works
-  if(localStorage.getItem('at_table') && localStorage.getItem('at_table') !== 'Projects') {
-    localStorage.removeItem('at_table');
-  }
   updateSubmitBar();
   buildRepDropdown();     // Populate email dropdown from saved rep list
   renderRepAdminList();   // Populate admin panel rep list
@@ -715,20 +713,17 @@ function toggleAtPanel() {
   document.getElementById('at-panel').classList.toggle('open');
 }
 function getAtConfig() {
-  // Credentials baked in — no setup required for end users.
-  // Admin overrides via PIN 2429 → config panel → Save & Test.
+  // Table name is ALWAYS the baked-in value — never from localStorage
   const BAKED = {
     token: 'patJp8jTwj2yOupYY.de6e4a70ec5d0a735f867163c54e3cb701c2931e8f727f00011ccef5fae6f0fb',
     base:  'appuMtLpPp2nTxsh1',
-    table: 'Projects',
+    table: 'Cold Chain Projects',
   };
-  // If localStorage has a value, use it — otherwise fall back to baked-in
-  const token = localStorage.getItem('at_token') || BAKED.token;
-  const base  = localStorage.getItem('at_base')  || BAKED.base;
-  const table = localStorage.getItem('at_table') || BAKED.table;
-  // Sanity-check: if stored table looks wrong (empty or 'Table 1'), use baked value
-  const safeTable = (!table || table === 'Table 1' || table === 'Cold Chain Projects') ? BAKED.table : table;
-  return { token, base, table: safeTable };
+  return {
+    token: localStorage.getItem('at_token') || BAKED.token,
+    base:  localStorage.getItem('at_base')  || BAKED.base,
+    table: BAKED.table,
+  };
 }
 function loadAtConfig() {
   const c = getAtConfig();
@@ -1018,11 +1013,19 @@ async function submitToAirtable() {
         btn.disabled = false;
       }, 800);
     } else {
-      const err = await resp.json();
-      const msg = err.error?.message || JSON.stringify(err);
-      alert('Airtable error: ' + msg +
-        '\n\nTip: Open ⚙ Airtable Config and click "Fetch Tables" to verify your table name is correct.');
-      btn.textContent = '↗ Submit to Airtable';
+      const errBody = await resp.json().catch(()=>({}));
+      const diagMsg = [
+        `HTTP Status: ${resp.status} ${resp.statusText}`,
+        `URL: https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}`,
+        `Table used: "${cfg.table}"`,
+        `Base used: "${cfg.base}"`,
+        `Token starts with: "${cfg.token.slice(0,12)}..."`,
+        ``,
+        `Airtable error type: ${errBody.error?.type || '—'}`,
+        `Airtable error message: ${errBody.error?.message || JSON.stringify(errBody)}`,
+      ].join('\n');
+      alert(diagMsg);
+      btn.textContent = '↗ Submit Project';
       btn.disabled = false;
     }
   } catch(e) {
