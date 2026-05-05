@@ -655,16 +655,13 @@ async function generateProjectNumber(cfg) {
   const prefix = `CC-${yy}${mm}${dd}-`;
 
   try {
-    // Fetch recent records sorted newest-first, check locally for today's prefix.
-    // We deliberately avoid filterByFormula so this works even if the
-    // "Project Number" column doesn't exist yet in Airtable.
+    // Fetch records with NO sort and NO field-specific params so this
+    // works even if "Project Number" column does not exist in Airtable yet.
     const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}` +
-                `?fields%5B%5D=Project%20Number&sort%5B0%5D%5Bfield%5D=Project%20Number` +
-                `&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=20`;
+                `?maxRecords=100`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${cfg.token}` } });
     if(r.ok) {
       const data = await r.json();
-      // Find the highest sequence number for today's prefix
       let maxSeq = 0;
       (data.records || []).forEach(rec => {
         const pn = rec.fields?.['Project Number'] || '';
@@ -678,13 +675,11 @@ async function generateProjectNumber(cfg) {
       });
       return `${prefix}${String(maxSeq + 1).padStart(3,'0')}`;
     }
-    // If the query failed (e.g. field doesn't exist) fall through to local fallback
   } catch(e) {
-    console.warn('Project number sequence lookup failed, using local fallback:', e);
+    console.warn('Project number lookup failed, using local fallback:', e);
   }
 
-  // Local fallback — use a timestamp-based sequence stored in sessionStorage
-  // so multiple submissions in the same browser session don't collide
+  // Local fallback — session-based counter
   const sessionKey = `cc_seq_${yy}${mm}${dd}`;
   const lastSeq = parseInt(sessionStorage.getItem(sessionKey) || '0', 10);
   const nextSeq = lastSeq + 1;
