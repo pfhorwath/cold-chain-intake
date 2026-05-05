@@ -829,72 +829,45 @@ function collectFormData() {
   const v = id => document.getElementById(id)?.value?.trim() || '';
   const checks = name => [...document.querySelectorAll(`input[name=${name}]:checked`)].map(c=>c.value).join(', ');
 
+  // Only fields that exactly match column names in Airtable are included.
+  // Add more entries here as you add columns to your Airtable table.
   return {
-    // Identifiers
-    'Project Number':    v('proj-num') || document.getElementById('proj-num').placeholder || 'Pending',
-    'Status':            v('proj-status'),
-    'Sales Rep':         v('sales-rep'),
-    'Date Created':      new Date().toISOString().slice(0,10),
-    // Customer
-    'Company Name':      v('co-name'),
-    'Industry':          v('co-industry'),
-    'Contact Name':      v('contact-name'),
-    'Contact Title':     v('contact-title'),
-    'Department':        v('contact-dept'),
-    'Email':             v('contact-email'),
-    'Phone':             v('contact-phone'),
-    'Annual Volume':     v('co-volume'),
-    // Product
-    'Product Name':      v('prod-name'),
-    'Product Category':  v('prod-cat'),
-    'Shipment Weight (lbs)': parseFloat(v('prod-weight')) || null,
-    'Units Per Shipment': parseInt(v('prod-units')) || null,
-    'Regulatory Class':  v('reg-class'),
-    'Product Notes':     v('prod-desc'),
-    // Temperature
-    'Temp Min (C)':      parseFloat(v('temp-min')) || null,
-    'Temp Max (C)':      parseFloat(v('temp-max')) || null,
-    'Temp Target (C)':   parseFloat(v('temp-target')) || null,
-    'Temp Start (C)':    parseFloat(v('temp-start')) || null,
-    'Temp Classification': v('temp-class'),
-    'Max Excursion (hr)': parseFloat(v('excursion-time')) || null,
-    'Freeze Sensitivity': v('freeze-sens'),
-    // Logistics
-    'Origin':            v('origin'),
-    'Destination':       v('dest'),
-    'Carrier':           v('carrier'),
-    'Transit Duration':  v('transit-dur'),
-    'Protection Window (hr)': parseFloat(v('prot-window')) || null,
+    'Project Number':       v('proj-num') || document.getElementById('proj-num').placeholder || 'Pending',
+    'Status':               v('proj-status'),
+    'Sales Rep':            v('sales-rep'),
+    'Date Created':         new Date().toISOString().slice(0,10),
+    'Company Name':         v('co-name'),
+    'Industry':             v('co-industry'),
+    'Contact Name':         v('contact-name'),
+    'Contact Title':        v('contact-title'),
+    'Email':                v('contact-email'),
+    'Phone':                v('contact-phone'),
+    'Annual Volume':        v('co-volume'),
+    'Product Name':         v('prod-name'),
+    'Product Category':     v('prod-cat'),
+    'Regulatory Class':     v('reg-class'),
+    'Product Notes':        v('prod-desc'),
+    'Temp Min (C)':         parseFloat(v('temp-min')) || null,
+    'Temp Max (C)':         parseFloat(v('temp-max')) || null,
+    'Temp Classification':  v('temp-class'),
+    'Origin':               v('origin'),
+    'Destination':          v('dest'),
+    'Carrier':              v('carrier'),
+    'Transit Duration':     v('transit-dur'),
     'Seasonal Requirement': v('season'),
-    'Worst-Case Ambient (C)': parseFloat(v('amb-summer')) || null,
-    'Transit Challenges': checks('challenge'),
-    // PCM
-    'PCM Setpoint (C)':  parseFloat(v('pcm-setpoint')) || null,
-    'PCM Type':          v('pcm-type'),
-    'PCM Bottle Size':   v('pcm-bottle'),
-    'PCM Packs/Shipment': parseInt(v('pcm-qty')) || null,
-    'PCM Conditioning':  v('pcm-cond'),
-    'PCM Budget':        v('pcm-budget'),
-    'Current Coolant':   v('pcm-current'),
-    // Testing
-    'Test Standard':     v('test-std'),
-    'Validation Stage':  v('test-stage'),
-    'Validation Timeline (days)': parseInt(v('test-timeline')) || null,
-    'Required Docs':     checks('docs'),
-    // Priorities
-    'Priorities':        [...document.querySelectorAll('.prio.active')].map(e=>e.textContent.trim()).join(', '),
-    'Launch Date':       v('launch-date'),
-    'Decision Timeline': v('decision-timeline'),
-    'Change Reason':     v('change-reason'),
-    'Constraints':       v('constraints'),
-    // Engineering
-    'Recommended PCM':   v('eng-pcm'),
-    'Recommended Insulation': v('eng-insul'),
-    'Calculated Window (hr)': parseFloat(v('eng-window')) || null,
-    'Safety Margin (hr)': parseFloat(v('eng-margin')) || null,
-    'ISTA 7E Status':    v('eng-ista'),
-    'Engineering Notes': v('eng-notes'),
-    'Next Actions':      v('eng-actions'),
+    'Transit Challenges':   checks('challenge'),
+    'PCM Setpoint (C)':     parseFloat(v('pcm-setpoint')) || null,
+    'PCM Type':             v('pcm-type'),
+    'PCM Bottle Size':      v('pcm-bottle'),
+    'PCM Budget':           v('pcm-budget'),
+    'Current Coolant':      v('pcm-current'),
+    'Test Standard':        v('test-std'),
+    'Priorities':           [...document.querySelectorAll('.prio.active')].map(e=>e.textContent.trim()).join(', '),
+    'Launch Date':          v('launch-date'),
+    'Decision Timeline':    v('decision-timeline'),
+    'Constraints':          v('constraints'),
+    'Engineering Notes':    v('eng-notes'),
+    'Next Actions':         v('eng-actions'),
   };
 }
 
@@ -978,7 +951,6 @@ async function submitToAirtable() {
 
     // 2. Collect all form data
     let fields = collectFormData();
-    // Ensure the generated number is used
     fields['Project Number'] = projNum;
 
     // 3. Remove empty/null values
@@ -986,7 +958,7 @@ async function submitToAirtable() {
       if(fields[k]===null || fields[k]==='') delete fields[k];
     });
 
-    // 3. Submit
+    // 4. Submit
     const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}`;
     const resp = await fetch(url, {
       method: 'POST',
