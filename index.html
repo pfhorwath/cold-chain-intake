@@ -945,21 +945,7 @@ function checkPassword() {
 ══════════════════════════════════════════════════ */
 
 // Cache of known field names per table — fetched once per session
-let _atFieldCache = null;
-
-async function getAtFields(cfg) {
-  if(_atFieldCache) return _atFieldCache;
-  try {
-    const r = await fetch(`https://api.airtable.com/v0/meta/bases/${cfg.base}/tables`,
-      { headers:{ Authorization:`Bearer ${cfg.token}` }});
-    if(!r.ok) return null;
-    const d = await r.json();
-    const tbl = d.tables?.find(t => t.name === cfg.table);
-    if(!tbl) return null;
-    _atFieldCache = new Set(tbl.fields.map(f => f.name));
-    return _atFieldCache;
-  } catch(e) { return null; }
-}
+// Field schema lookup removed — Airtable skips unknown fields natively
 
 async function submitToAirtable() {
   const btn = document.getElementById('submit-btn');
@@ -1005,20 +991,7 @@ async function submitToAirtable() {
       if(fields[k]===null || fields[k]==='') delete fields[k];
     });
 
-    // 3. Fetch the table's actual field list and filter to only matching fields
-    //    This means the form never errors on missing columns — it just skips them.
-    const knownFields = await getAtFields(cfg);
-    if(knownFields) {
-      const skipped = [];
-      Object.keys(fields).forEach(k => {
-        if(!knownFields.has(k)) { skipped.push(k); delete fields[k]; }
-      });
-      if(skipped.length) {
-        console.info('Skipped fields not in Airtable table (add columns to capture them):', skipped);
-      }
-    }
-
-    // 4. Submit
+    // 3. Submit
     const url = `https://api.airtable.com/v0/${cfg.base}/${encodeURIComponent(cfg.table)}`;
     const resp = await fetch(url, {
       method: 'POST',
@@ -1028,8 +1001,6 @@ async function submitToAirtable() {
 
     if(resp.ok) {
       const rec = await resp.json();
-      // Reset field cache so next submit picks up any new columns added
-      _atFieldCache = null;
       btn.textContent = '✓ Submitted!';
       btn.style.background = '#15803d';
       const projNum = fields['Project Number'];
@@ -1049,8 +1020,6 @@ async function submitToAirtable() {
     } else {
       const err = await resp.json();
       const msg = err.error?.message || JSON.stringify(err);
-      // Reset cache so next attempt re-fetches schema
-      _atFieldCache = null;
       alert('Airtable error: ' + msg +
         '\n\nTip: Open ⚙ Airtable Config and click "Fetch Tables" to verify your table name is correct.');
       btn.textContent = '↗ Submit to Airtable';
